@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUIZHUB - Online Quiz Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sora', sans-serif; background-color: #f8fafc; }
+        .hidden { display: none; }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        .gradient-bg { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <header class="gradient-bg text-white shadow-lg sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="location.reload()">
+                <div class="bg-white p-2 rounded-lg">
+                    <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight">QUIZHUB</h1>
+            </div>
+            <div id="nav-actions" class="hidden">
+                <button onclick="logout()" class="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition">
+                    <span>Logout</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6">
+        
+        <section id="landing-page" class="py-20 text-center animate-fade-in">
+            <h2 class="text-4xl font-extrabold text-gray-900 mb-4">Select Your Role</h2>
+            <p class="text-gray-600 mb-12">Choose your Role and continue...!</p>
+            
+            <div class="flex flex-col md:flex-row gap-8 justify-center items-stretch max-w-4xl mx-auto mb-10">
+                <label class="flex-1 cursor-pointer group">
+                    <input type="radio" name="role" value="faculty" class="hidden peer">
+                    <div class="p-8 bg-white border-2 border-gray-100 rounded-2xl peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition-all card-shadow h-full">
+                        <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition">
+                            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2"/></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Faculty</h3>
+                        <p class="text-gray-500 text-sm mt-2">Create quizzes and manage tests and view student results</p>
+                    </div>
+                </label>
+
+                <label class="flex-1 cursor-pointer group">
+                    <input type="radio" name="role" value="student" class="hidden peer">
+                    <div class="p-8 bg-white border-2 border-gray-100 rounded-2xl peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition-all card-shadow h-full">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition">
+                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z" stroke-width="2"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" stroke-width="2"/></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Student</h3>
+                        <p class="text-gray-500 text-sm mt-2">Access quizzes, Attempt tests and track your performance</p>
+                    </div>
+                </label>
+            </div>
+            <button onclick="handleRoleSelection()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-3 rounded-xl font-bold transition transform hover:scale-105">Continue</button>
+        </section>
+
+        <section id="faculty-login" class="hidden py-20">
+            <div class="max-w-md mx-auto bg-white p-8 rounded-2xl card-shadow">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Faculty Login</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+                        <input type="email" id="f-email" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" placeholder="FacultyName@git-india.edu.in">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+                        <input type="password" id="f-pass" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" placeholder="••••••••">
+                    </div>
+                    <button onclick="login('faculty')" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-bold hover:bg-indigo-700 transition">Login</button>
+                    <button onclick="showSection('landing-page')" class="w-full text-gray-500 text-sm">Back</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="faculty-dashboard" class="hidden">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900">Faculty Dashboard</h2>
+                    <p class="text-gray-600">Welcome, <span id="faculty-name-display" class="font-semibold text-indigo-600">Teacher</span></p>
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="showSection('results-dashboard')" class="bg-white border-2 border-gray-200 px-4 py-2 rounded-xl hover:bg-gray-50 font-semibold">View Results</button>
+                    <button onclick="showSection('create-test-page')" class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition">+ Create New Test</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h3 class="text-xl font-bold mb-4">Your Quizzes</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-gray-400 text-sm uppercase tracking-wider border-b">
+                                <th class="pb-3">Quiz Name</th>
+                                <th class="pb-3">Subject</th>
+                                <th class="pb-3">Attempts</th>
+                                <th class="pb-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="faculty-quiz-list" class="divide-y">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="create-test-page" class="hidden">
+            <h2 class="text-3xl font-bold mb-8 text-center">Create New Quiz</h2>
+            <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <div class="bg-white p-8 rounded-2xl card-shadow border-t-4 border-red-500">
+                    <h3 class="text-xl font-bold mb-4">Option 1: Google Form Link</h3>
+                    <div class="space-y-4">
+                        <p>Enter Test Name:</p>
+                        <input type="text" id="gf-name" class="w-full px-4 py-2 border rounded-lg" placeholder="Test Name">
+                        <p>Enter the Subject:</p>
+                        <input type="text" id="gf-subject" class="w-full px-4 py-2 border rounded-lg" placeholder="Subject/Description">
+                        <p>Google Form URL:</p>
+                        <input type="url" id="gf-link" class="w-full px-4 py-2 border rounded-lg" placeholder="Paste Google Form URL">
+                        <p>Due Date</p>
+                        <input type="date" id="gf-due" class="w-full px-4 py-2 border rounded-lg"placeholder="Due Date">
+                        <button onclick="saveGoogleForm()" class="w-full bg-red-500 text-white py-2 rounded-lg font-bold">Publish Link</button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl card-shadow border-t-4 border-indigo-500">
+                    <h3 class="text-xl font-bold mb-4">Option 2: Create with AI</h3>
+                    <div class="space-y-4">
+                        <p>Enter Subject:</p>
+                        <input type="text" id="ai-subject" class="w-full px-4 py-2 border rounded-lg" placeholder="Subject (e.g. Operating Systems)">
+                        <p>Enter Topic:</p>
+                        <input type="text" id="ai-topic" class="w-full px-4 py-2 border rounded-lg" placeholder="Topic (e.g. Deadlocks)">
+                        <p>Enter the Number of Questions in the Test:</p>
+                        <input type="number" id="ai-count" class="w-full px-4 py-2 border rounded-lg" placeholder="Number of Questions" min="1" max="10">
+                        <button onclick="generateAIQuestions()" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-bold">Generate Questions</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ai-editor" class="hidden mt-12 max-w-3xl mx-auto bg-white p-8 rounded-2xl card-shadow">
+                <h3 class="text-xl font-bold mb-6">Review & Edit Questions</h3>
+                <div id="ai-questions-list" class="space-y-6"></div>
+                <button onclick="saveAIQuiz()" class="mt-8 w-full bg-green-600 text-white py-3 rounded-lg font-bold">Upload to Website</button>
+            </div>
+            
+            <button onclick="showSection('faculty-dashboard')" class="mt-8 block mx-auto text-gray-500">Cancel</button>
+        </section>
+
+        <section id="results-dashboard" class="hidden">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold">Detailed Results</h2>
+                <button onclick="showSection('faculty-dashboard')" class="text-indigo-600 font-semibold">Back to Dashboard</button>
+            </div>
+            <div class="bg-white rounded-2xl p-6 card-shadow">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="p-4 rounded-l-lg">Student Name</th>
+                            <th class="p-4">Roll No</th>
+                            <th class="p-4">Quiz</th>
+                            <th class="p-4">Marks Obtained</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-list" class="divide-y">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="student-login" class="hidden py-20">
+            <div class="max-w-md mx-auto bg-white p-8 rounded-2xl card-shadow">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Student Login</h2>
+                <div class="space-y-4">
+                    <input type="email" id="s-email" class="w-full px-4 py-2 border rounded-lg outline-none" placeholder="en24157964@git-india.edu.in">
+                    <input type="password" id="s-pass" class="w-full px-4 py-2 border rounded-lg outline-none" placeholder="••••••••">
+                    <button onclick="login('student')" class="w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition">Login</button>
+                    <button onclick="showSection('landing-page')" class="w-full text-gray-500 text-sm">Back</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="student-info" class="hidden py-20">
+            <div class="max-w-md mx-auto bg-white p-8 rounded-2xl card-shadow">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Enter Your Information:</h2>
+                
+                <div class="space-y-4">
+                    <p>Enter Your Full Name:</p>
+                    <input type="text" id="s-name" class="w-full px-4 py-2 border rounded-lg outline-none" placeholder="Full Name">
+                    <p>Enter Your Roll Number:</p>
+                    <input type="text" id="s-roll" class="w-full px-4 py-2 border rounded-lg outline-none" placeholder="Roll Number">
+                    <button onclick="saveStudentInfo()" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-bold">Continue to Dashboard</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="student-dashboard" class="hidden">
+            <div class="bg-indigo-50 p-8 rounded-3xl mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900">Welcome, <span id="display-s-email" class="text-indigo-600">User</span>!</h2>
+                    <div class="flex gap-4 mt-2 text-gray-600 font-medium">
+                        <p>Name: <span id="display-s-name" class="text-gray-900"></span></p>
+                        <p>Roll No: <span id="display-s-roll" class="text-gray-900"></span></p>
+                    </div>
+                </div>
+                <div class="w-full md:w-96">
+                    <input type="text" id="quiz-search" onkeyup="filterQuizzes()" class="w-full px-5 py-3 rounded-2xl border-none shadow-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Search quiz, subject or faculty...">
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                <span class="w-2 h-2 bg-indigo-600 rounded-full animate-pulse"></span>
+                Assigned Quizzes
+            </h3>
+            <div id="student-quiz-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+        </section>
+
+        <section id="quiz-attempt" class="hidden">
+            <div id="quiz-header" class="mb-10 text-center">
+                <h2 id="current-quiz-title" class="text-3xl font-bold mb-2">Quiz Name</h2>
+                <p id="current-quiz-meta" class="text-gray-500">Subject: Science | Faculty: Dr. Smith</p>
+            </div>
+            
+            <div id="attempt-questions-container" class="max-w-3xl mx-auto space-y-8">
+                </div>
+
+            <div class="max-w-3xl mx-auto mt-12 pb-20">
+                <button onclick="submitQuizAttempt()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 transition shadow-lg">Submit Test</button>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="modal-overlay" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-6">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">✓</div>
+            <h3 class="text-2xl font-bold mb-2">Success!</h3>
+            <p id="modal-msg" class="text-gray-600 mb-6"></p>
+            <button onclick="closeModal()" class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold">Great!</button>
+        </div>
+    </div>
+
+    <script>
+        // Data Structure & Storage
+        let users = JSON.parse(localStorage.getItem('users')) || { faculty: [], student: [] };
+        let quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
+        let results = JSON.parse(localStorage.getItem('results')) || [];
+        let currentUser = null;
+        let activeQuiz = null;
+
+        // Navigation
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function handleRoleSelection() {
+            const role = document.querySelector('input[name="role"]:checked');
+            if (!role) return alert("Please select a role!");
+            showSection(`${role.value}-login`);
+        }
+
+        // Login Logic
+        function login(role) {
+            const email = document.getElementById(`${role === 'faculty' ? 'f' : 's'}-email`).value;
+            if (!email) return alert("Enter email");
+            
+            currentUser = { email, role };
+            document.getElementById('nav-actions').classList.remove('hidden');
+
+            if (role === 'faculty') {
+                document.getElementById('faculty-name-display').innerText = email.split('@')[0];
+                renderFacultyDashboard();
+                showSection('faculty-dashboard');
+            } else {
+                showSection('student-info');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('nav-actions').classList.add('hidden');
+            location.reload();
+        }
+
+        // Student Info
+        function saveStudentInfo() {
+            currentUser.name = document.getElementById('s-name').value;
+            currentUser.roll = document.getElementById('s-roll').value;
+            
+            document.getElementById('display-s-email').innerText = currentUser.email;
+            document.getElementById('display-s-name').innerText = currentUser.name;
+            document.getElementById('display-s-roll').innerText = currentUser.roll;
+            
+            renderStudentDashboard();
+            showSection('student-dashboard');
+        }
+
+        // Create Quiz - Google Form
+        function saveGoogleForm() {
+            const quiz = {
+                id: Date.now(),
+                type: 'link',
+                name: document.getElementById('gf-name').value,
+                subject: document.getElementById('gf-subject').value,
+                link: document.getElementById('gf-link').value,
+                due: document.getElementById('gf-due').value,
+                faculty: currentUser.email,
+                date: new Date().toLocaleDateString(),
+                attempts: 0
+            };
+            quizzes.push(quiz);
+            localStorage.setItem('quizzes', JSON.stringify(quizzes));
+            alert("Quiz Link Published!");
+            renderFacultyDashboard();
+            showSection('faculty-dashboard');
+        }
+
+        // Create Quiz - AI Mock
+        let tempQuestions = [];
+        function generateAIQuestions() {
+            const subject = document.getElementById('ai-subject').value;
+            const topic = document.getElementById('ai-topic').value;
+            const count = document.getElementById('ai-count').value || 3;
+
+            // Simulated AI generation
+            tempQuestions = [];
+            for(let i=1; i<=count; i++) {
+                tempQuestions.push({
+                    id: i,
+                    question: `Sample question ${i} about ${topic}?`,
+                    options: ['Option A', 'Option B', 'Option C', 'Option D'],
+                    answer: 0
+                });
+            }
+
+            const container = document.getElementById('ai-questions-list');
+            container.innerHTML = tempQuestions.map((q, idx) => `
+                <div class="p-4 border rounded-lg">
+                    <input type="text" value="${q.question}" class="w-full font-bold mb-2 p-2 border-b outline-none" onchange="tempQuestions[${idx}].question = this.value">
+                    <div class="grid grid-cols-2 gap-2">
+                        ${q.options.map((opt, oIdx) => `
+                            <input type="text" value="${opt}" class="p-2 border rounded text-sm" onchange="tempQuestions[${idx}].options[${oIdx}] = this.value">
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('ai-editor').classList.remove('hidden');
+        }
+
+        function saveAIQuiz() {
+            const quiz = {
+                id: Date.now(),
+                type: 'ai',
+                name: document.getElementById('ai-topic').value + " Quiz",
+                subject: document.getElementById('ai-subject').value,
+                questions: tempQuestions,
+                faculty: currentUser.email,
+                date: new Date().toLocaleDateString(),
+                attempts: 0
+            };
+            quizzes.push(quiz);
+            localStorage.setItem('quizzes', JSON.stringify(quizzes));
+            showModal("AI Quiz has been successfully uploaded!");
+            renderFacultyDashboard();
+            showSection('faculty-dashboard');
+        }
+
+        // Render Dashboards
+        function renderFacultyDashboard() {
+            const list = document.getElementById('faculty-quiz-list');
+            const myQuizzes = quizzes.filter(q => q.faculty === currentUser.email);
+            
+            list.innerHTML = myQuizzes.map(q => `
+                <tr>
+                    <td class="py-4 font-semibold">${q.name}</td>
+                    <td class="py-4 text-gray-500">${q.subject}</td>
+                    <td class="py-4">${results.filter(r => r.quizId == q.id).length}</td>
+                    <td class="py-4">
+                        <button onclick="showSection('results-dashboard'); renderResults()" class="text-indigo-600 font-bold hover:underline">View Results</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            if(myQuizzes.length === 0) list.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-gray-400">No quizzes created yet</td></tr>';
+        }
+
+        function renderStudentDashboard(filter = '') {
+            const list = document.getElementById('student-quiz-list');
+            const search = filter.toLowerCase();
+            
+            const filtered = quizzes.filter(q => 
+                q.name.toLowerCase().includes(search) || 
+                q.subject.toLowerCase().includes(search) || 
+                q.faculty.toLowerCase().includes(search)
+            );
+
+            list.innerHTML = filtered.map(q => `
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded-md uppercase">${q.subject}</span>
+                        <span class="text-gray-400 text-xs">${q.date}</span>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-1">${q.name}</h4>
+                    <p class="text-gray-500 text-sm mb-6">Faculty: ${q.faculty}</p>
+                    <div class="flex justify-between items-center border-t pt-4">
+                        <div class="text-xs text-gray-400">Due: ${q.due || 'N/A'}</div>
+                        <button onclick="startQuiz(${q.id})" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-700">Attempt</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterQuizzes() {
+            renderStudentDashboard(document.getElementById('quiz-search').value);
+        }
+
+        // Quiz Attempt Logic
+        function startQuiz(id) {
+            activeQuiz = quizzes.find(q => q.id == id);
+            
+            if (activeQuiz.type === 'link') {
+                window.open(activeQuiz.link, '_blank');
+                // Record attempt even for external links
+                results.push({ name: currentUser.name, roll: currentUser.roll, quizId: id, quizName: activeQuiz.name, score: 'Completed (Ext)' });
+                localStorage.setItem('results', JSON.stringify(results));
+                return;
+            }
+
+            document.getElementById('current-quiz-title').innerText = activeQuiz.name;
+            document.getElementById('current-quiz-meta').innerText = `Subject: ${activeQuiz.subject} | Faculty: ${activeQuiz.faculty}`;
+            
+            const container = document.getElementById('attempt-questions-container');
+            container.innerHTML = activeQuiz.questions.map((q, idx) => `
+                <div class="bg-white p-8 rounded-2xl shadow-sm">
+                    <p class="text-lg font-bold text-gray-900 mb-4">${idx + 1}. ${q.question}</p>
+                    <div class="space-y-3">
+                        ${q.options.map((opt, oIdx) => `
+                            <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition">
+                                <input type="radio" name="q${idx}" value="${oIdx}" class="w-4 h-4 text-indigo-600">
+                                <span class="text-gray-700">${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            showSection('quiz-attempt');
+        }
+
+        function submitQuizAttempt() {
+            let score = 0;
+            activeQuiz.questions.forEach((q, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                if(selected && selected.value == q.answer) score++;
+            });
+
+            const finalScore = `${score}/${activeQuiz.questions.length}`;
+            results.push({
+                name: currentUser.name,
+                roll: currentUser.roll,
+                quizId: activeQuiz.id,
+                quizName: activeQuiz.name,
+                score: finalScore
+            });
+            localStorage.setItem('results', JSON.stringify(results));
+            showModal(`Your test has been submitted. Score: ${finalScore}`);
+            showSection('student-dashboard');
+        }
+
+        function renderResults() {
+            const list = document.getElementById('results-list');
+            list.innerHTML = results.map(r => `
+                <tr>
+                    <td class="p-4">${r.name}</td>
+                    <td class="p-4 text-gray-500">${r.roll}</td>
+                    <td class="p-4 font-medium">${r.quizName}</td>
+                    <td class="p-4"><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">${r.score}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Modal Controls
+        function showModal(msg) {
+            document.getElementById('modal-msg').innerText = msg;
+            document.getElementById('modal-overlay').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
