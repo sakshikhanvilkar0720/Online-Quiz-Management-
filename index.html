@@ -252,9 +252,9 @@
 
     <script>
         // Data Structure & Storage
-        let users = JSON.parse(localStorage.getItem('users')) || { faculty: [], student: [] };
-        let quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
-        let results = JSON.parse(localStorage.getItem('results')) || [];
+        let users = { faculty: [], student: [] };
+let quizzes = [];
+let results = [];
         let currentUser = null;
         let activeQuiz = null;
 
@@ -272,21 +272,43 @@
         }
 
         // Login Logic
-        function login(role) {
-            const email = document.getElementById(`${role === 'faculty' ? 'f' : 's'}-email`).value;
-            if (!email) return alert("Enter email");
-            
-            currentUser = { email, role };
+        async function login(role) {
+
+const email = document.getElementById(`${role === 'faculty' ? 'f' : 's'}-email`).value;
+
+if(!email) return alert("Enter email");
+
+currentUser = {email, role};
+
+await fetch(`/${role}Login`,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({email:email})
+});
+
+document.getElementById('nav-actions').classList.remove('hidden');
+
+if(role === 'faculty'){
+document.getElementById('faculty-name-display').innerText = email.split('@')[0];
+loadQuizzes();
+showSection('faculty-dashboard');
+}
+else{
+showSection('student-info');
+}
+}
             document.getElementById('nav-actions').classList.remove('hidden');
 
             if (role === 'faculty') {
                 document.getElementById('faculty-name-display').innerText = email.split('@')[0];
-                renderFacultyDashboard();
-                showSection('faculty-dashboard');
+                loadQuizzes();
+showSection('faculty-dashboard');
             } else {
                 showSection('student-info');
             }
-        }
+        
 
         function logout() {
             currentUser = null;
@@ -294,18 +316,20 @@
             location.reload();
         }
 
-        // Student Info
-        function saveStudentInfo() {
-            currentUser.name = document.getElementById('s-name').value;
-            currentUser.roll = document.getElementById('s-roll').value;
-            
-            document.getElementById('display-s-email').innerText = currentUser.email;
-            document.getElementById('display-s-name').innerText = currentUser.name;
-            document.getElementById('display-s-roll').innerText = currentUser.roll;
-            
-            renderStudentDashboard();
-            showSection('student-dashboard');
-        }
+// Student Info
+function saveStudentInfo() {
+
+currentUser.name = document.getElementById('s-name').value;
+currentUser.roll = document.getElementById('s-roll').value;
+
+document.getElementById('display-s-email').innerText = currentUser.email;
+document.getElementById('display-s-name').innerText = currentUser.name;
+document.getElementById('display-s-roll').innerText = currentUser.roll;
+
+loadQuizzes();
+showSection('student-dashboard');
+
+}
 
         // Create Quiz - Google Form
         function saveGoogleForm() {
@@ -319,13 +343,22 @@
                 faculty: currentUser.email,
                 date: new Date().toLocaleDateString(),
                 attempts: 0
-            };
-            quizzes.push(quiz);
-            localStorage.setItem('quizzes', JSON.stringify(quizzes));
-            alert("Quiz Link Published!");
-            renderFacultyDashboard();
-            showSection('faculty-dashboard');
-        }
+            };}
+ fetch("/createQuiz",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(quiz)
+}).then(async ()=>{
+
+alert("Quiz Link Published!");
+
+await loadQuizzes();   // reload quizzes from database
+
+showSection('faculty-dashboard');
+
+});
 
         // Create Quiz - AI Mock
         let tempQuestions = [];
@@ -370,13 +403,22 @@
                 faculty: currentUser.email,
                 date: new Date().toLocaleDateString(),
                 attempts: 0
-            };
-            quizzes.push(quiz);
-            localStorage.setItem('quizzes', JSON.stringify(quizzes));
-            showModal("AI Quiz has been successfully uploaded!");
-            renderFacultyDashboard();
-            showSection('faculty-dashboard');
-        }
+            };}
+            fetch("/createQuiz",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(quiz)
+}).then(async ()=>{
+
+showModal("AI Quiz has been successfully uploaded!");
+
+await loadQuizzes();  // reload quizzes
+
+showSection('faculty-dashboard');
+
+});
 
         // Render Dashboards
         function renderFacultyDashboard() {
@@ -396,6 +438,17 @@
             
             if(myQuizzes.length === 0) list.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-gray-400">No quizzes created yet</td></tr>';
         }
+
+        async function loadQuizzes(){
+const res = await fetch("/quizzes");
+quizzes = await res.json();
+renderStudentDashboard();
+renderFacultyDashboard();
+}
+
+
+
+
 
         function renderStudentDashboard(filter = '') {
             const list = document.getElementById('student-quiz-list');
@@ -434,8 +487,18 @@
             if (activeQuiz.type === 'link') {
                 window.open(activeQuiz.link, '_blank');
                 // Record attempt even for external links
-                results.push({ name: currentUser.name, roll: currentUser.roll, quizId: id, quizName: activeQuiz.name, score: 'Completed (Ext)' });
-                localStorage.setItem('results', JSON.stringify(results));
+               fetch("/submitResult",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+name: currentUser.name,
+roll: currentUser.roll,
+quizName: activeQuiz.name,
+score: "Attempted"
+})
+});
                 return;
             }
 
@@ -468,29 +531,43 @@
             });
 
             const finalScore = `${score}/${activeQuiz.questions.length}`;
-            results.push({
-                name: currentUser.name,
-                roll: currentUser.roll,
-                quizId: activeQuiz.id,
-                quizName: activeQuiz.name,
-                score: finalScore
-            });
-            localStorage.setItem('results', JSON.stringify(results));
+            fetch("/submitResult",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+name: currentUser.name,
+roll: currentUser.roll,
+quizName: activeQuiz.name,
+score: finalScore
+})
+});
             showModal(`Your test has been submitted. Score: ${finalScore}`);
             showSection('student-dashboard');
         }
 
-        function renderResults() {
-            const list = document.getElementById('results-list');
-            list.innerHTML = results.map(r => `
-                <tr>
-                    <td class="p-4">${r.name}</td>
-                    <td class="p-4 text-gray-500">${r.roll}</td>
-                    <td class="p-4 font-medium">${r.quizName}</td>
-                    <td class="p-4"><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">${r.score}</span></td>
-                </tr>
-            `).join('');
-        }
+        async function renderResults() {
+
+const res = await fetch("/results");
+const data = await res.json();
+
+const list = document.getElementById('results-list');
+
+list.innerHTML = data.map(r => `
+<tr>
+<td class="p-4">${r.name}</td>
+<td class="p-4 text-gray-500">${r.roll}</td>
+<td class="p-4 font-medium">${r.quizName}</td>
+<td class="p-4">
+<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
+${r.score}
+</span>
+</td>
+</tr>
+`).join('');
+
+}
 
         // Modal Controls
         function showModal(msg) {
